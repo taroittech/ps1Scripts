@@ -1,0 +1,8 @@
+# Enable ps1 scripts
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Bypass -Force;
+
+# Tarkista levyn SMART tila Windowsin omalla tavalla
+Get-PhysicalDisk | Select FriendlyName, HealthStatus, OperationalStatus
+
+# NVMe-levyille (usein ainoa toimiva tapa)
+Get-StorageReliabilityCounter
