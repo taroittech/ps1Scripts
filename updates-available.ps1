@@ -7,15 +7,26 @@ if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
 # Hae lista sovelluksista, joille on päivityksiä saatavilla
 Write-Host "Tarkistetaan päivityksiä, odota hetki..."
 
-# Suorita winget upgrade ja ohita interaktiivisuus
-$updates = winget upgrade --accept-source-agreements | Select-String "^\S" | Where-Object { $_ -notmatch "Name\s+Id\s+Version" -and $_ -notmatch "----" }
+# Hae päivityslista
+$updates = winget upgrade --accept-source-agreements 2>$null
 
-# Laske montako riviä löytyi (eli montako päivitettävää sovellusta)
-$updateCount = $updates.Count
+# Suodata oikeat sovellusrivit
+$apps = $updates |
+    Select-String '^\S' |
+    Where-Object {
+        $_ -notmatch '^Name\s+Id\s+Version' -and
+        $_ -notmatch '^-+' -and
+        $_ -notmatch 'upgrades available' -and
+        $_ -notmatch 'No installed package found'
+    }
+
+# Laske määrä
+$updateCount = $apps.Count
 
 # Tulosta tulos
 if ($updateCount -eq 0) {
     Write-Host "Kaikki sovellukset ovat ajan tasalla. ✅"
-} else {
+}
+else {
     Write-Host "Päivityksiä saatavilla $updateCount sovellukselle. 🔄"
 }
